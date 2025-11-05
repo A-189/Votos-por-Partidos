@@ -1,0 +1,117 @@
+---
+title: "Código Votos por Partido"
+author: "A-189"
+date: "2025-11-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Sección 1: Inicio
+
+####Se cargan las librerías:
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(readxl)
+library(ggplot2)
+library(dplyr)
+```
+
+#### Se carga el dataset:
+
+```{r}
+df_diputados_2021 <- read_xlsx("[Input] Base de Datos Elecciones/2021_11_Diputados_Datos_Eleccion.xlsx", skip = 6, na=c("N/A", " ")) |>
+  janitor::clean_names()
+```
+
+**Explicación:**
+
+-   El Excel contiene información otorgada por SERVEL sobre los candidatos a diputados y sus votantes en las elecciones para diputados de 2021 en Chile.
+
+-   Usamos el código "skip = 6" para omitir las primeras seis filas del Excel original y "na=c("N/A", " ")" para que no se contabilizen espacios en blanco.
+
+-   Usamos el código "janitor::clean_names()" para estandarizar los nombres de las columnas
+
+#### Se agrupan los datos por partido político y se cuentan los votos:
+
+```{r}
+df_votos_por_partido_diputados_2021 <- df_diputados_2021 |>
+  group_by(partido) |>
+  summarise(votos = sum(votos, na.rm=TRUE)) |>
+  arrange(desc(votos))
+view(df_votos_por_partido_diputados_2021)
+```
+
+**Explicación:**
+
+-   Usamos el código "group_by(partido)" para agrupar los datos por partido político.
+
+-   Usamos el código "summarise()" para que, de la columna de partidos que agrupamos, se vean los votos por partido.
+
+-   Dentro de "summarise()", usamos "sum(votos, na.rm=TRUE)" para sumar los votos de cada partido, y usamos "na.rm=TRUE" para que no se consideren los datos en blanco.
+
+-   Usamos el código "arrange(desc(votos))" para ordenar la columna de partidos según la cantidad de votos que obtuvieron, ordenándose de mayor a menor.
+
+-   Usamos el código "view(df_votos_por_partido_diputados_2021)" para visualizar el nuevo dataframe. En ella podemos observar la cantidad de votos por partido político de forma descendiente.
+
+    -   Podemos observar partidos, independientes y votos nulos (considerados como fila N/A en el dataframe).
+
+
+
+## Sección 2: Juntar bases Diputados y Senadores 2021
+
+Nuestro objetivo es observar los votos por partido en las elecciones parlamentarias del año 2021. Para ello, se deben juntar las bases de datos de los diputados junto al de los senadores.
+
+Primero, reutilizaremos los códigos elaborados en la sección anterior, cambiando las categorías de diputados, por la de senadores.
+
+
+####Elecciones Senadores 2021
+
+**Extraemos la base de datos de Senadores 2021:**
+
+```{r}
+df_senadores_2021 <- read_xlsx("[Input] Base de Datos Elecciones/2021_11_Senadores_Datos_Eleccion.xlsx", skip = 6, na=c("N/A", " ")) |>
+  janitor::clean_names()
+```
+
+**Sacamos la cantidad de votos por partido:**
+
+```{r}
+df_votos_por_partido_senadores_2021 <- df_senadores_2021 |>
+  group_by(partido) |>
+  summarise(votos = sum(votos, na.rm=TRUE)) |>
+  arrange(desc(votos))
+view(df_votos_por_partido_senadores_2021)
+```
+
+
+####Juntamos las bases de datos de Diputados y Senadores:
+
+```{r}
+df_votos_por_partido_parlamentarias_2021 <- bind_rows(df_votos_por_partido_diputados_2021, df_votos_por_partido_senadores_2021) |>
+  group_by(partido) |>
+  summarise(votos = sum(votos, na.rm=TRUE)) |>
+  arrange(desc(votos))
+view(df_votos_por_partido_parlamentarias_2021)
+```
+
+**Explicación:**
+
+- Utilizamos el código "bind_rows()" para juntar las dos bases de datos. Este código combina las columnas de ambas bases por su nombre, en este caso, el partido político.
+
+- Seguido de bind_rows(), usamos los mismos códigos que utilizamos para ordenar y sumar los votos por partido en las elecciones de diputados y senadores.
+
+
+
+## Sección 3: Juntar bases Presidenciales Primera y Segunda Vuelta
+
+
+
+
+## Sección 4: Reutilizar código para las otras elecciones
+
+####Elecciones Presidenciales 2021
