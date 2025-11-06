@@ -203,7 +203,7 @@ df_votos_por_partido_presidenciales_primera_2017 <- df_votos_por_partido_preside
     primer_apellido == "NAVARRO" ~ "PAIS",
     TRUE ~ ""
   )) |>
-view(df_votos_por_partido_presidenciales_primera_2017_prueba)
+view(df_votos_por_partido_presidenciales_primera_2017)
 ```
 
 **Explicación:**
